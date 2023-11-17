@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: web
+    command: ./app/main.py
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8888"
+    depends_on:
+      - db
+      - rabbitmq
+  db:
+    image: postgres:15-alpine
+    container_name: postgresql
+    volumes:
+      -  postgres_data:/var/lib/postgresql/data/
+    expose:
+      - 5432
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_PORT=${DB_PORT}
+  rabbitmq:
+    image: "rabbitmq:3.8-management"
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RB_USER}
+      - RABBITMQ_DEFAULT_PASS=${RB_PASSWORD}
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+volumes:
+  postgres_data:
+  rabbitmq_data:
+    driver: local

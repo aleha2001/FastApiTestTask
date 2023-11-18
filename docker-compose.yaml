@@ -12,6 +12,8 @@ services:
     depends_on:
       - db
       - rabbitmq
+    env_file:
+      - .env
   db:
     image: postgres:15-alpine
     container_name: postgresql

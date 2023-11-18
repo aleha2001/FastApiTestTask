@@ -3,17 +3,17 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
+from config.config import Config
 
 
-load_dotenv(".env")
-db_port = os.getenv("DB_PORT")
-db_user = os.getenv("DB_USER")
-db_password = os.getenv("DB_PASSWORD")
-db_host = os.getenv("DB_HOST")
-db_name = os.getenv("DB_NAME")
+# Config.db_host = "localhost"
+# Config.db_user = "postgres"
+# Config.db_name = "testbaum"
+# Config.db_password = "aleha2001"
+
 
 SQLALCHEMY_DATABASE_URL = (
-    f"postgresql+asyncpg://{db_user}:{db_password}@{db_host}/{db_name}"
+    f"postgresql://{Config.db_user}:{Config.db_password}@{Config.db_host}/{Config.db_name}"
 )
 
 

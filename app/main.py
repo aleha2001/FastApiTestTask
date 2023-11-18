@@ -1,28 +1,34 @@
 #!/usr/bin/env python3
 import asyncio
-
 import uvicorn
 from fastapi import FastAPI
-
 from db.database import engine
 from db import models
 from models import TextItem
-import pika
+from contextlib import asynccontextmanager
+from consumer import PikaConsumer
+from producer import PikaProducer
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    models.Base.metadata.create_all(bind=engine)
+    loop = asyncio.get_running_loop()
+    pika_consumer = PikaConsumer()
+    task = loop.create_task(pika_consumer.consume(loop))
+    pika_producer = PikaProducer()
+    await task
+    yield
+    pika_producer.close_connection()
 
 
 def create_app():
-    app = FastAPI(docs_url="/")
-
-
-    @app.on_event("startup")
-    async def startup_event():
-        # models.Base.metadata.create_all(bind=engine)
-        pass
+    app = FastAPI(docs_url="/", lifespan=lifespan)
 
     @app.post("/text")
     async def parse_text(text_item: TextItem):
         print(text_item)
-        asyncio.create_task(publish_text(text_item))
+        publish_text(text_item)
         return text_item
 
     return app

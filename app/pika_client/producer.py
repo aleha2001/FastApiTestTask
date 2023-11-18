@@ -7,18 +7,31 @@ from config.config import Config
 
 
 class PikaProducer:
+    """
+    Pika Producer class
+    """
+
     def __init__(self):
-        connections_params = pika.ConnectionParameters(Config.rb_host)
-        self.connection = pika.BlockingConnection(connections_params)
-        self.chanel = self.connection.channel()
+        connections_creds = pika.PlainCredentials(
+            username=Config.rb_user, password=Config.rb_password
+        )
+        self.connections_params = pika.ConnectionParameters(
+            Config.rb_host, credentials=connections_creds, port=Config.rb_port
+        )
+        self.connection = pika.BlockingConnection(self.connections_params)
 
     def publish_text(self, text_item: TextItem):
+        """
+        Sends text to rabbitmq
+        """
+        chanel = self.connection.channel()
+        chanel.queue_declare(queue="texts")
         text_item_json = json.dumps(
             text_item.model_dump(), indent=4, sort_keys=True, default=str
         )
 
-        self.chanel.queue_declare(queue="texts")
-        self.chanel.basic_publish(exchange="", routing_key="texts", body=text_item_json)
+        chanel.queue_declare(queue="texts")
+        chanel.basic_publish(exchange="", routing_key="texts", body=text_item_json)
         print(f"sent text: {text_item}")
 
     def close_connection(self):

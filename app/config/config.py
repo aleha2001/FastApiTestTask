@@ -9,7 +9,7 @@ db_password = os.getenv("DB_PASSWORD")
 db_host = os.getenv("DB_HOST")
 db_name = os.getenv("DB_NAME")
 rb_port = os.getenv("RB_PORT")
-rb_user = os.getenv("RB_HOST")
+rb_user = os.getenv("RB_USER")
 rb_password = os.getenv("RB_PASSWORD")
 rb_host = os.getenv("RB_HOST")
 

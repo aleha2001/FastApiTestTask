@@ -1,26 +1,23 @@
 #!/usr/bin/env python3
 import asyncio
-
-import pika
+import logging
 import uvicorn
-from fastapi import FastAPI, Request
-
-from config.config import Config
-from db.database import engine
+from fastapi import FastAPI, HTTPException, Request
+from db.database import SessionLocal, engine
 from db import models
-from models import TextItem
-from contextlib import asynccontextmanager
+from db.queries import get_text
+from models import TextItem, TextDbItem
 from pika_client.consumer import PikaConsumer
 from pika_client.producer import PikaProducer
 
 
-def test():
-    print("test connection")
-    # print(f"{Config.rb_user=},{Config.rb_host=},{Config.rb_password=},{Config.rb_port=}")
-
-
 def create_app():
     app = FastAPI(docs_url="/")
+
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+    )
 
     @app.on_event("startup")
     async def startapp():
@@ -35,9 +32,22 @@ def create_app():
 
     @app.post("/text")
     async def parse_text(request: Request, text_item: TextItem):
-        print(text_item)
         request.app.state.pika_producer.publish_text(text_item)
         return text_item
+
+    @app.get("/text/{text_id}", response_model=TextDbItem)
+    async def get_text_by_id(text_id: int):
+        db_text = get_text(SessionLocal(), text_id=text_id)
+        if db_text is None:
+            logging.warning("no text found")
+            raise HTTPException(status_code=404, detail="Item not found")
+        item = TextDbItem(
+            datetime=db_text.time_saved,
+            title=db_text.title,
+            x_avg=round(db_text.x_count / db_text.text_len, 3),
+        )
+
+        return item
 
     return app
 

@@ -1,4 +1,6 @@
 import json
+import logging
+
 import pika
 import asyncio
 from models import TextItem
@@ -32,7 +34,7 @@ class PikaProducer:
 
         chanel.queue_declare(queue="texts")
         chanel.basic_publish(exchange="", routing_key="texts", body=text_item_json)
-        print(f"sent text: {text_item}")
+        logging.info(f"sent text: {text_item}")
 
     def close_connection(self):
         self.connection.close()

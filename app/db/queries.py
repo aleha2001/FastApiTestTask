@@ -1,20 +1,22 @@
+import logging
+
 from sqlalchemy.orm import Session
 from .models import Text
 
 
-def get_text(session: Session, text_id: int):
+def get_text(session: Session, text_id: int) -> Text:
     """
     Select Text row by id
     """
-    print("Getting text from db")
+    logging.info(f"getting text {text_id=}")
     return session.query(Text).get(text_id)
 
 
-def insert_text(session: Session, text_dict):
+def insert_text(session: Session, text_dict: dict) -> None:
     """
     Create new Text object
     """
-    print("Inserting text in db")
+    logging.info(f"inserting text {text_dict=}")
     new_text = Text(
         time_saved=text_dict.get("time_saved"),
         title=text_dict.get("title"),

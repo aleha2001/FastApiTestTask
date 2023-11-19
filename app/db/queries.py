@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 
 from sqlalchemy.orm import Session
 from .models import Text
@@ -18,7 +19,9 @@ def insert_text(session: Session, text_dict: dict) -> None:
     """
     logging.info(f"inserting text {text_dict=}")
     new_text = Text(
-        time_saved=text_dict.get("time_saved"),
+        time_saved=datetime.strptime(
+            text_dict.get("datetime"), "%d.%m.%Y %H:%M:%S.%f"
+        ),
         title=text_dict.get("title"),
         text_len=text_dict.get("text_len"),
         x_count=text_dict.get("x_count"),

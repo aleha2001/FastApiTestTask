@@ -14,35 +14,35 @@ class PikaConsumer:
     """PikaConsumer class"""
 
     def __init__(self):
-        pass
+        self.connection = None
 
     @staticmethod
-    def process_text(message: IncomingMessage):
+    async def process_text(message: IncomingMessage):
         """Counts x occurrences in text and saves to db"""
         body = message.body
         data = json.loads(body)
+        logging.info(f"{data=}")
         data_text = data["text"]
-        x_count = data_text.lower().count("x")
+        x_count = data_text.lower().count("х")
         logging.info(f"data processed,{x_count=}")
         data.update({"x_count": x_count, "text_len": len(data_text)})
         insert_text(SessionLocal(), data)
 
     async def consume(self, loop):
         """Setup message listener with the current running loop"""
-        connection = await aio_pika.connect_robust(
+        self.connection = await aio_pika.connect_robust(
             host=Config.rb_host,
             port=Config.rb_port,
             login=Config.rb_user,
             password=Config.rb_password,
             loop=loop,
         )
-        channel = await connection.channel()
+        channel = await self.connection.channel()
         queue = await channel.declare_queue("texts")
-        await queue.consume(self.process_text, no_ack=True)
-        return connection
+        await queue.consume(self.process_text, no_ack=False)
 
     async def close_connection(self):
-        self.connection.close()
+        await self.connection.close()
 
 
 if __name__ == "__main__":

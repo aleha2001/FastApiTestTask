@@ -26,13 +26,17 @@ def create_app():
         pika_producer = PikaProducer()
         app.state.pika_producer = pika_producer
         app.state.pika_consumer = pika_consumer
-        loop = asyncio.get_running_loop()
+        loop = asyncio.get_event_loop()
         task = loop.create_task(pika_consumer.consume(loop))
         await task
 
     @app.post("/text")
     async def parse_text(request: Request, text_item: TextItem):
-        request.app.state.pika_producer.publish_text(text_item)
+        loop = asyncio.get_event_loop()
+        task = asyncio.create_task(
+            request.app.state.pika_producer.publish_text(text_item, loop=loop)
+        )
+        await task
         return text_item
 
     @app.get("/text/{text_id}", response_model=TextDbItem)
@@ -42,7 +46,7 @@ def create_app():
             logging.warning("no text found")
             raise HTTPException(status_code=404, detail="Item not found")
         item = TextDbItem(
-            datetime=db_text.time_saved,
+            datetime=db_text.time_saved.strftime("%d.%m.%Y %H:%M:%S.%f"),
             title=db_text.title,
             x_avg=round(db_text.x_count / db_text.text_len, 3),
         )

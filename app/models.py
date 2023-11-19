@@ -3,12 +3,12 @@ from datetime import datetime
 
 
 class TextItem(BaseModel):
-    datetime: datetime
+    datetime: str
     title: str
     text: str
 
 
 class TextDbItem(BaseModel):
-    datetime: datetime
+    datetime: str
     title: str
     x_avg: float

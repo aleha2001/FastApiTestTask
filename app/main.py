@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 import asyncio
 import logging
+
 import uvicorn
 from fastapi import FastAPI, HTTPException, Request
-from db.database import SessionLocal, engine
+
 from db import models
+from db.database import SessionLocal, engine
 from db.queries import get_text
-from models import TextItem, TextDbItem
+from models import TextDbItem, TextItem
 from pika_client.consumer import PikaConsumer
 from pika_client.producer import PikaProducer
 

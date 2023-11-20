@@ -1,10 +1,10 @@
 import json
-import logging
-import aio_pika
-import asyncio
-from models import TextItem
 from datetime import datetime
+
+import aio_pika
+
 from config.config import Config
+from models import TextItem
 
 
 class PikaProducer:

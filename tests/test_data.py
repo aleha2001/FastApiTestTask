@@ -1,10 +1,10 @@
 import os
-import requests
 import time
 from datetime import datetime
 
+import requests
 
-# Function to read sentences from a file
+
 def read_sentences(file_path):
     with open(file_path, "r") as file:
         sentences = file.read().splitlines()
@@ -35,4 +35,4 @@ if __name__ == "__main__":
     if sentences:
         send_requests(sentences)
     else:
-        print("No sentences found in the file.")
+        print("No sentences in the file.")

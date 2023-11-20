@@ -1,13 +1,12 @@
+import json
 import logging
 
-import pika
 import aio_pika
 from aio_pika import IncomingMessage
-import asyncio
-import json
-from db.database import SessionLocal
-from db.queries import insert_text, get_text
+
 from config.config import Config
+from db.database import SessionLocal
+from db.queries import insert_text
 
 
 class PikaConsumer:
